@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template, request
 from flaskext.mysql import MySQL
+from datetime import datetime
 
 app= Flask(__name__)
 
@@ -36,6 +37,16 @@ def storage():
     nombre = request.form['txtNombre']
     correo = request.form['txtCorreo']
     foto = request.files['txtFoto']
+
+    # Esta funcion me retorna el tiempo actualmente
+    now = datetime.now()
+    # Lo convierto al formato Anio, hora, mes, segundo
+    tiempo = now.strftime('%Y%H%M%S')
+
+    if foto.filename != '':
+        # Agregarle el tiempo evita que las fotos no tengan el mismo nombre y se sobreescriban
+        nuevoNombreFoto = tiempo + foto.filename
+        foto.save("uploads/" + nuevoNombreFoto)
 
     # el %s va a ser remplazado por los datos que sean ingresados en orden
     sql = "INSERT INTO `empleados` (`id`, `nombre`, `correo`, `foto`) VALUES (NULL, %s, %s, %s);"
