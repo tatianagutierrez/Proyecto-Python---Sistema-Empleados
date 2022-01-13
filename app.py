@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, redirect
 from flaskext.mysql import MySQL
 from datetime import datetime
 
@@ -7,25 +7,39 @@ app= Flask(__name__)
 
 mysql= MySQL()
 
-# para que se conecte a sql usamos el host 'localhost'
 app.config['MYSQL_DATABASE_HOST']='localhost'
 app.config['MYSQL_DATABASE_USER']='root'
-app.config['MYSQL_DATABASE_PASSWORD']=''
-    # DB: data base
-app.config['MYSQL_DATABASE_DB']='sistema'
+app.config['MYSQL_DATABASE_PASSWORD']='' 
+app.config['MYSQL_DATABASE_DB']='sistema' # DB: data base
 mysql.init_app(app)
 
 @app.route('/')
 def index():
 
     # conectar a la base de datos
-    sql = "INSERT INTO `empleados` (`id`, `nombre`, `correo`, `foto`) VALUES (NULL, 'Tatiana', 'tatiana@gmail.com', 'foto.jpg');"
+    sql = "SELECT * FROM `empleados`;"
     conn = mysql.connect()
     cursor = conn.cursor()
     cursor.execute(sql)
+    
+    empleados = cursor.fetchall() # trae todos los datos
+    print(empleados)
+
     conn.commit()
 
-    return render_template('empleados/index.html')
+    return render_template('empleados/index.html', empleados = empleados)
+
+@app.route('/delete/<int:id>')
+def delete(id):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM empleados WHERE id=%s", (id))
+    conn.commit()
+
+    # regresa a la pagina anterior
+    return redirect('/')
+
 
 @app.route('/create')
 def create():
