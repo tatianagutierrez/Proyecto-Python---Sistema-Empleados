@@ -40,6 +40,15 @@ def delete(id):
     # regresa a la pagina anterior
     return redirect('/')
 
+@app.route('/edit/<int:id>')
+def edit():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM empleados WHERE id=%s", (id))
+    empleados = cursor.fetchall() # trae todos los datos
+    conn.commit()
+
+    return render_template('empleados/edit.html', empleados=empleados)
 
 @app.route('/create')
 def create():
